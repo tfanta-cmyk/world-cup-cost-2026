@@ -235,13 +235,21 @@
 </div>
 
 <script>
-const fx = {
+let fx = {
   GBP:1,IQD:1660,PAB:1.27,CAD:1.73,MXN:21.5,TND:3.9,MAD:12.7,ARS:1150,
   JOD:0.90,UZS:16200,IRR:53000,KRW:1720,CZK:29.5,ZAR:23.5,NOK:13.4,EUR:1.18,
   BRL:6.45,QAR:4.62,SAR:4.76,AUD:1.96,TRY:43.2,COP:5100,UYU:50.8,XOF:770,
   NGN:1900,CVE:130,HTG:167,GHS:19.5,CDF:3560,BAM:2.30,HRK:8.9,SEK:13.1,
   NZD:2.14,EGP:62.5,AWG:2.29,DZD:170,JPY:192,PYG:9600
 };
+// Fetch live rates — falls back to static rates above if API unavailable
+fetch('https://api.exchangerate-api.com/v4/latest/GBP')
+  .then(r=>r.json())
+  .then(data=>{
+    if(data&&data.rates){
+      Object.keys(fx).forEach(c=>{if(data.rates[c])fx[c]=data.rates[c];});
+    }
+  }).catch(()=>{});
 const sym = {
   GBP:'£',IQD:'IQD ',PAB:'B/.',CAD:'C$',MXN:'MX$',TND:'DT ',MAD:'MAD ',
   ARS:'$',JOD:'JD ',UZS:'som ',IRR:'﷼',KRW:'₩',CZK:'Kč',ZAR:'R',NOK:'kr',
