@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 World Cup – The True Cost Of Following Your Team</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f;--surface:#12121a;--card:#1a1a26;--border:#2a2a3f;
+    --accent:#f5c518;--text:#f0f0f0;--muted:#888;
+    --c-tickets:#f5c518;--c-flights:#4f8ef7;--c-acc:#a855f7;--c-food:#2ecc71;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+  .header{padding:44px 32px 28px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+  .header::before{content:'FIFA 2026';position:absolute;right:-10px;top:-20px;font-family:'Bebas Neue',sans-serif;font-size:180px;color:rgba(245,197,24,0.04);pointer-events:none;white-space:nowrap;}
+  .header-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:24px;}
+  .title-block h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,4.5vw,54px);line-height:0.95;letter-spacing:1px;}
+  .title-block h1 span{color:var(--accent);}
+  .title-block p{margin-top:10px;color:var(--muted);font-size:13px;max-width:500px;line-height:1.6;}
+  .ctrl-group label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+  select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;outline:none;transition:border-color .2s;}
+  select:hover{border-color:var(--accent);}
+  select option{background:var(--card);}
+  .tabs{display:flex;padding:20px 32px 0;border-bottom:1px solid var(--border);}
+  .tab{padding:9px 22px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:1px;}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .main{padding:28px 32px;}
+  .overview,.detail{display:none;}
+  .overview.active,.detail.active{display:block;}
+
+  /* LEGEND */
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+  .legend-dot{width:12px;height:12px;border-radius:2px;flex-shrink:0;}
+
+  /* SUMMARY CARDS */
+  .summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px;}
+  .summary-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;}
+  .summary-card .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:7px;}
+  .summary-card .value{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent);}
+  .summary-card .sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  /* STACKED BAR CHART */
+  .chart-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:16px;}
+  .chart-title span{color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;font-weight:400;letter-spacing:0;margin-left:8px;}
+  .bar-chart{display:flex;flex-direction:column;gap:5px;}
+  .bar-row{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:10px;cursor:pointer;transition:opacity .15s;}
+  .bar-row:hover{opacity:.8;}
+  .bar-nation{font-size:12px;font-weight:500;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+  .bar-track{height:22px;background:var(--surface);border-radius:4px;overflow:hidden;display:flex;}
+  .bar-seg{height:100%;transition:width .9s cubic-bezier(.4,0,.2,1);}
+  .bar-seg.tickets{background:var(--c-tickets);}
+  .bar-seg.flights{background:var(--c-flights);}
+  .bar-seg.acc{background:var(--c-acc);}
+  .bar-seg.food{background:var(--c-food);}
+  .bar-value{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+
+  /* DETAIL */
+  .nation-sel-wrap{margin-bottom:24px;}
+  .nation-sel-wrap label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+  #nationSelect{font-size:14px;padding:11px 18px;min-width:260px;}
+  .detail-header{display:flex;align-items:center;gap:18px;margin-bottom:24px;flex-wrap:wrap;}
+  .detail-nation{font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1;letter-spacing:1px;}
+  .detail-total-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);}
+  .detail-total-value{font-family:'DM Mono',monospace;font-size:30px;color:var(--accent);font-weight:500;}
+  .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:26px;}
+  .breakdown-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;overflow:hidden;}
+  .breakdown-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .breakdown-card.flights::before{background:var(--c-flights);}
+  .breakdown-card.acc::before{background:var(--c-acc);}
+  .breakdown-card.tickets::before{background:var(--c-tickets);}
+  .breakdown-card.food::before{background:var(--c-food);}
+  .breakdown-card .cat{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:7px;}
+  .breakdown-card .amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;}
+  .breakdown-card.flights .amt{color:var(--c-flights);}
+  .breakdown-card.acc .amt{color:var(--c-acc);}
+  .breakdown-card.tickets .amt{color:var(--c-tickets);}
+  .breakdown-card.food .amt{color:var(--c-food);}
+  .breakdown-card .pct{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  /* MATCH TABLE */
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;margin-bottom:14px;margin-top:4px;}
+  .match-table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;padding:9px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+  .stage-badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
+  .sg{background:rgba(79,142,247,.15);color:#4f8ef7;}
+  .r32{background:rgba(168,85,247,.15);color:#a855f7;}
+  .r16{background:rgba(245,197,24,.15);color:var(--accent);}
+  .qf{background:rgba(251,113,133,.15);color:#fb7185;}
+  .sf{background:rgba(46,204,113,.15);color:#2ecc71;}
+  .fin{background:rgba(245,197,24,.25);color:var(--accent);border:1px solid rgba(245,197,24,.4);}
+  .ret{color:var(--muted);font-style:italic;}
+  .mono{font-family:'DM Mono',monospace;}
+  .dim{color:var(--muted);}
+  td.tickets-col{color:var(--c-tickets);}
+  td.flights-col{color:var(--c-flights);}
+  td.acc-col{color:var(--c-acc);}
+  td.food-col{color:var(--c-food);}
+  td.total-col{color:var(--accent);font-weight:600;}
+  tfoot td{border-top:1px solid var(--border);border-bottom:none;font-weight:600;padding-top:12px;}
+
+  .note{margin-top:20px;padding:14px;background:rgba(245,197,24,.05);border:1px solid rgba(245,197,24,.12);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.6;}
+  .note strong{color:var(--accent);}
+
+  @media(max-width:600px){
+    .header,.main,.tabs{padding-left:16px;padding-right:16px;}
+    .bar-row{grid-template-columns:70px 1fr 80px;}
+    .bar-nation{font-size:10px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="title-block">
+      <h1>2026 WORLD CUP<br><span>THE TRUE COST OF FOLLOWING YOUR TEAM</span></h1>
+      <p>How much does it cost to follow your nation from the Group Stage all the way to the Final? All costs cover 2 people including flights, accommodation, tickets and food & drinks.</p>
+    </div>
+    <div class="ctrl-group">
+      <label>Currency</label>
+      <select id="currencySelect" onchange="updateCurrency()">
+        <option value="GBP">GBP – British Pound (£)</option>
+        <option value="USD">USD – US Dollar ($)</option>
+        <option value="EUR">EUR – Euro (€)</option>
+        <option value="MXN">MXN – Mexican Peso</option>
+        <option value="BRL">BRL – Brazilian Real</option>
+        <option value="ARS">ARS – Argentine Peso</option>
+        <option value="JPY">JPY – Japanese Yen</option>
+        <option value="KRW">KRW – South Korean Won</option>
+        <option value="AUD">AUD – Australian Dollar</option>
+        <option value="CAD">CAD – Canadian Dollar</option>
+        <option value="ZAR">ZAR – South African Rand</option>
+        <option value="SAR">SAR – Saudi Riyal</option>
+        <option value="QAR">QAR – Qatari Riyal</option>
+        <option value="CHF">CHF – Swiss Franc</option>
+        <option value="SEK">SEK – Swedish Krona</option>
+        <option value="NOK">NOK – Norwegian Krone</option>
+        <option value="TRY">TRY – Turkish Lira</option>
+        <option value="EGP">EGP – Egyptian Pound</option>
+        <option value="MAD">MAD – Moroccan Dirham</option>
+        <option value="TND">TND – Tunisian Dinar</option>
+        <option value="DZD">DZD – Algerian Dinar</option>
+        <option value="UYU">UYU – Uruguayan Peso</option>
+        <option value="PYG">PYG – Paraguayan Guaraní</option>
+        <option value="COP">COP – Colombian Peso</option>
+        <option value="NZD">NZD – New Zealand Dollar</option>
+        <option value="IQD">IQD – Iraqi Dinar</option>
+        <option value="JOD">JOD – Jordanian Dinar</option>
+        <option value="UZS">UZS – Uzbekistani Som</option>
+        <option value="HRK">HRK – Croatian Kuna</option>
+        <option value="CZK">CZK – Czech Koruna</option>
+        <option value="BAM">BAM – Bosnian Mark</option>
+        <option value="CVE">CVE – Cape Verdean Escudo</option>
+        <option value="GHS">GHS – Ghanaian Cedi</option>
+        <option value="XOF">XOF – West African CFA Franc</option>
+        <option value="CDF">CDF – Congolese Franc</option>
+        <option value="NGN">NGN – Nigerian Naira</option>
+        <option value="HTG">HTG – Haitian Gourde</option>
+        <option value="PAB">PAB – Panamanian Balboa</option>
+        <option value="AWG">AWG – Aruban Florin (Curaçao)</option>
+        <option value="IRR">IRR – Iranian Rial</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">All 48 Nations</div>
+  <div class="tab" onclick="switchTab('detail')">Nation Detail</div>
+</div>
+
+<div class="main">
+
+  <!-- OVERVIEW -->
+  <div class="overview active" id="overviewPanel">
+    <div class="summary-cards" id="summaryCards"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-tickets)"></div>Tickets</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-flights)"></div>Flights</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-acc)"></div>Accommodation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-food)"></div>Food & Drinks</div>
+    </div>
+    <div class="chart-title">Total Cost Ranked <span>click any bar to see match-by-match breakdown</span></div>
+    <div class="bar-chart" id="barChart"></div>
+    <div class="note" style="margin-top:28px;">
+      <strong>Note:</strong> All costs assume 2 people following their nation from the Group Stage all the way to the Final. Data shown in <span id="currencyNote">GBP (£)</span>. Accommodation uses a combined Airbnb & Booking.com average. Ticket prices are average resale/face values × 2 people.
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="detail" id="detailPanel">
+    <div class="nation-sel-wrap">
+      <label>Select a nation</label>
+      <select id="nationSelect" onchange="renderDetail()"></select>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+</div>
+
+<script>
+// ── EXCHANGE RATES (base GBP) ─────────────────────────────────────────────────
+const rates={GBP:1,USD:1.27,EUR:1.18,MXN:21.5,BRL:6.45,ARS:1150,JPY:192,KRW:1720,AUD:1.96,CAD:1.73,ZAR:23.5,SAR:4.76,QAR:4.62,CHF:1.12,SEK:13.1,NOK:13.4,TRY:43.2,EGP:62.5,MAD:12.7,TND:3.9,DZD:170,UYU:50.8,PYG:9600,COP:5100,NZD:2.14,IQD:1660,JOD:0.90,UZS:16200,HRK:8.9,CZK:29.5,BAM:2.30,CVE:130,GHS:19.5,XOF:770,CDF:3560,NGN:1900,HTG:167,PAB:1.27,AWG:2.29,IRR:53000};
+const symbols={GBP:'£',USD:'$',EUR:'€',MXN:'MX$',BRL:'R$',ARS:'$',JPY:'¥',KRW:'₩',AUD:'A$',CAD:'C$',ZAR:'R',SAR:'﷼',QAR:'﷼',CHF:'Fr',SEK:'kr',NOK:'kr',TRY:'₺',EGP:'E£',MAD:'MAD ',TND:'DT ',DZD:'DA ',UYU:'$U',PYG:'₲',COP:'$',NZD:'NZ$',IQD:'IQD ',JOD:'JD ',UZS:'som ',HRK:'kn',CZK:'Kč',BAM:'KM',CVE:'$',GHS:'₵',XOF:'CFA ',CDF:'FC',NGN:'₦',HTG:'G',PAB:'B/.',AWG:'ƒ',IRR:'﷼'};
+let cur='GBP';
+const bigCur=['JPY','KRW','IQD','IRR','UZS','HTG','PYG','CDF','NGN','DZD','ARS','XOF'];
+function fmt(gbp){const v=gbp*rates[cur],s=symbols[cur]||cur+' ';return(bigCur.includes(cur)?s+Math.round(v).toLocaleString():s+v.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0}));}
+function fmtZ(gbp){return gbp>0?fmt(gbp):'—';}
+
+function updateCurrency(){
+  cur=document.getElementById('currencySelect').value;
+  document.getElementById('currencyNote').textContent=cur+' ('+(symbols[cur]||cur)+')';
+  renderOverview();renderDetail();
+}
+
+// ── STAGE BADGE ───────────────────────────────────────────────────────────────
+function stageBadge(s){
+  const m={'Group Stage':['sg','Group Stage'],'Round of 32':['r32','R32'],'Round of 16':['r16','R16'],'Quarter-final':['qf','QF'],'Semi-final':['sf','SF'],'Final':['fin','Final'],'Return':['ret','Return']};
+  const [cls,label]=m[s]||['',''];
+  return cls==='ret'?`<span class="ret">Return flight</span>`:`<span class="stage-badge ${cls}">${label}</span>`;
+}
+
+// ── NATION DATA ───────────────────────────────────────────────────────────────
+// Each match: [matchName, location, date, stage, tickets£2p, food£2p, acc£combined, flights£2p]
+const nations = {
+'Mexico':{group:'A',total:43565.40,flights:5391.57,food:3031.51,acc:7087.59,tickets:28054.73,
+matches:[
+['Mexico v South Africa','Mexico City','11 Jun 2026','Group Stage',2402.15,397.22,1093.62,0],
+['Mexico v South Korea','Guadalajara','18 Jun 2026','Group Stage',2612.32,391.63,1108.43,1100.81],
+['Mexico v Czech Republic','Mexico City','24 Jun 2026','Group Stage',2214.18,340.48,760.72,1104.19],
+['Mexico v TBD','Mexico City','30 Jun 2026','Round of 32',1565.91,283.73,547.84,0],
+['Mexico v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,0],
+['Mexico v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['Mexico v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Mexico v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Mexico City','','20 Jul 2026','Return',0,0,0,1041.54],
+]},
+'South Africa':{group:'A',total:45055.58,flights:11221.39,food:3341.08,acc:8645.80,tickets:21847.31,
+matches:[
+['South Africa v Mexico','Mexico City','11 Jun 2026','Group Stage',0,397.22,1093.62,3124.28],
+['South Africa v Czech Republic','Atlanta','18 Jun 2026','Group Stage',472.14,735.03,1968.50,840.65],
+['South Africa v South Korea','Monterrey','24 Jun 2026','Group Stage',549.11,306.64,1458.86,851.28],
+['South Africa v TBD','Mexico City','30 Jun 2026','Round of 32',1565.91,283.73,547.84,1102.30],
+['South Africa v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,0],
+['South Africa v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['South Africa v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['South Africa v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Pretoria','','20 Jul 2026','Return',0,0,0,3157.87],
+]},
+'South Korea':{group:'A',total:43887.70,flights:8444.59,food:3057.35,acc:7752.95,tickets:24632.81,
+matches:[
+['South Korea v Czech Republic','Guadalajara','11 Jun 2026','Group Stage',645.31,456.90,1060.83,2786.14],
+['South Korea v Mexico','Guadalajara','18 Jun 2026','Group Stage',2612.32,391.63,1108.43,0],
+['South Korea v South Africa','Monterrey','24 Jun 2026','Group Stage',549.11,306.64,1458.86,363.73],
+['South Korea v TBD','Mexico City','30 Jun 2026','Round of 32',1565.91,283.73,547.84,1102.30],
+['South Korea v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,0],
+['South Korea v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['South Korea v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['South Korea v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Seoul','','20 Jul 2026','Return',0,0,0,2047.41],
+]},
+'Czech Republic':{group:'A',total:42860.62,flights:7353.45,food:3434.59,acc:7914.87,tickets:24157.70,
+matches:[
+['Czech Republic v South Korea','Guadalajara','11 Jun 2026','Group Stage',645.31,456.90,1060.83,2183.19],
+['Czech Republic v South Africa','Atlanta','18 Jun 2026','Group Stage',472.14,735.03,1968.50,843.39],
+['Czech Republic v Mexico','Mexico City','24 Jun 2026','Group Stage',2214.18,340.48,760.72,757.94],
+['Czech Republic v TBD','Mexico City','30 Jun 2026','Round of 32',1565.91,283.73,547.84,0],
+['Czech Republic v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,0],
+['Czech Republic v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['Czech Republic v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Czech Republic v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Prague','','20 Jul 2026','Return',0,0,0,1423.92],
+]},
+'Canada':{group:'B',total:45150.36,flights:3239.23,food:4141.87,acc:14262.79,tickets:23506.47,
+matches:[
+['Canada v Bosnia & Herzegovina','Toronto','12 Jun 2026','Group Stage',1792.36,533.89,1834.32,636.11],
+['Canada v Qatar','Vancouver','18 Jun 2026','Group Stage',895.44,632.20,2616.13,472.62],
+['Canada v Switzerland','Vancouver','24 Jun 2026','Group Stage',1053.81,842.93,3375.41,0],
+['Canada v TBD','Vancouver','2 Jul 2026','Round of 32',1076.01,526.83,2186.34,0],
+['Canada v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,0],
+['Canada v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,681.65,557.43],
+['Canada v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,407.73],
+['Canada v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Ottawa','','20 Jul 2026','Return',0,0,0,502.79],
+]},
+'Bosnia & Herzegovina':{group:'B',total:48383.51,flights:8071.75,food:4346.74,acc:13120.14,tickets:22844.88,
+matches:[
+['Bosnia v Canada','Toronto','12 Jun 2026','Group Stage',1792.36,533.89,1834.32,2766.81],
+['Bosnia v Switzerland','Los Angeles','18 Jun 2026','Group Stage',802.20,757.14,1786.29,480.28],
+['Bosnia v Qatar','Seattle','24 Jun 2026','Group Stage',485.46,922.85,3062.60,410.91],
+['Bosnia v TBD','Vancouver','2 Jul 2026','Round of 32',1076.01,526.83,2186.34,429.22],
+['Bosnia v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,0],
+['Bosnia v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,681.65,557.43],
+['Bosnia v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,407.73],
+['Bosnia v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Sarajevo','','20 Jul 2026','Return',0,0,0,2356.82],
+]},
+'Qatar':{group:'B',total:50038.15,flights:10805.27,food:4298.43,acc:13304.70,tickets:21629.74,
+matches:[
+['Qatar v Switzerland','Santa Clara','13 Jun 2026','Group Stage',483.98,610.53,1189.05,2478.53],
+['Qatar v Canada','Vancouver','18 Jun 2026','Group Stage',895.44,632.20,2616.13,699.32],
+['Qatar v Bosnia & Herzegovina','Seattle','24 Jun 2026','Group Stage',485.46,922.85,3062.60,469.99],
+['Qatar v TBD','Vancouver','2 Jul 2026','Round of 32',1076.01,526.83,2186.34,429.22],
+['Qatar v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,0],
+['Qatar v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,681.65,557.43],
+['Qatar v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,407.73],
+['Qatar v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Doha','','20 Jul 2026','Return',0,0,0,5100.50],
+]},
+'Switzerland':{group:'B',total:45112.69,flights:5876.70,food:4343.46,acc:12787.68,tickets:22104.85,
+matches:[
+['Switzerland v Qatar','Santa Clara','13 Jun 2026','Group Stage',483.98,610.53,1189.05,2374.83],
+['Switzerland v Bosnia & Herzegovina','Los Angeles','18 Jun 2026','Group Stage',802.20,757.14,1786.29,438.61],
+['Switzerland v Canada','Vancouver','24 Jun 2026','Group Stage',1053.81,842.93,3375.41,470.74],
+['Switzerland v TBD','Vancouver','2 Jul 2026','Round of 32',1076.01,526.83,2186.34,0],
+['Switzerland v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,0],
+['Switzerland v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,681.65,557.43],
+['Switzerland v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,407.73],
+['Switzerland v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Bern','','20 Jul 2026','Return',0,0,0,964.81],
+]},
+'Brazil':{group:'C',total:49124.26,flights:8310.22,food:4315.57,acc:10505.47,tickets:25992.99,
+matches:[
+['Brazil v Morocco','East Rutherford','13 Jun 2026','Group Stage',1898.93,590.64,1139.88,2097.27],
+['Brazil v Haiti','Philadelphia','19 Jun 2026','Group Stage',1160.37,509.51,2399.60,711.10],
+['Brazil v Scotland','Miami','24 Jun 2026','Group Stage',2406.59,738.85,1421.47,492.43],
+['Brazil v TBD','Houston','29 Jun 2026','Round of 32',1277.30,607.95,1511.59,881.04],
+['Brazil v TBD','East Rutherford','5 Jul 2026','Round of 16',1941.85,590.64,1085.48,560.93],
+['Brazil v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,691.12],
+['Brazil v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Brazil v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Brasília','','20 Jul 2026','Return',0,0,0,1805.06],
+]},
+'Morocco':{group:'C',total:48901.00,flights:9076.50,food:4644.42,acc:11019.42,tickets:24160.66,
+matches:[
+['Morocco v Brazil','East Rutherford','13 Jun 2026','Group Stage',1898.93,689.08,1313.21,2545.97],
+['Morocco v Scotland','Foxborough','19 Jun 2026','Group Stage',1160.37,866.24,2787.78,644.80],
+['Morocco v Haiti','Atlanta','24 Jun 2026','Group Stage',574.27,612.53,1373.91,398.45],
+['Morocco v TBD','Houston','29 Jun 2026','Round of 32',1277.30,607.95,1511.59,686.32],
+['Morocco v TBD','East Rutherford','5 Jul 2026','Round of 16',1941.85,590.64,1085.48,560.93],
+['Morocco v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,691.12],
+['Morocco v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Morocco v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Rabat','','20 Jul 2026','Return',0,0,0,2477.62],
+]},
+'Haiti':{group:'C',total:43647.01,flights:4200.32,food:4341.10,acc:11764.88,tickets:23340.70,
+matches:[
+['Haiti v Scotland','Foxborough','13 Jun 2026','Group Stage',1078.97,742.49,2446.86,0],
+['Haiti v Brazil','Philadelphia','19 Jun 2026','Group Stage',1160.37,509.51,2399.60,614.54],
+['Haiti v Morocco','Atlanta','24 Jun 2026','Group Stage',574.27,612.53,1373.91,576.12],
+['Haiti v TBD','Houston','29 Jun 2026','Round of 32',1277.30,607.95,1511.59,686.32],
+['Haiti v TBD','East Rutherford','5 Jul 2026','Round of 16',1941.85,590.64,1085.48,560.93],
+['Haiti v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,691.12],
+['Haiti v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Haiti v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Port-au-Prince','','20 Jul 2026','Return',0,0,0,0],
+]},
+'Scotland':{group:'C',total:49335.26,flights:8120.99,food:4576.66,acc:11464.57,tickets:25173.03,
+matches:[
+['Scotland v Haiti','Foxborough','13 Jun 2026','Group Stage',1078.97,742.49,2446.86,3140.90],
+['Scotland v Morocco','Foxborough','19 Jun 2026','Group Stage',1160.37,618.74,2051.73,0],
+['Scotland v Brazil','Miami','24 Jun 2026','Group Stage',2406.59,738.85,1421.47,571.27],
+['Scotland v TBD','Houston','29 Jun 2026','Round of 32',1277.30,607.95,1511.59,881.04],
+['Scotland v TBD','East Rutherford','5 Jul 2026','Round of 16',1941.85,590.64,1085.48,560.93],
+['Scotland v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,691.12],
+['Scotland v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Scotland v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Edinburgh','','20 Jul 2026','Return',0,0,0,1204.45],
+]},
+'United States':{group:'D',total:47145.78,flights:5012.33,food:4611.07,acc:12044.46,tickets:25477.92,
+matches:[
+['USA v Paraguay','Los Angeles','12 Jun 2026','Group Stage',1898.93,883.34,2485.86,719.29],
+['USA v Australia','Seattle','19 Jun 2026','Group Stage',1826.41,692.14,2509.98,590.74],
+['USA v Turkey','Los Angeles','25 Jun 2026','Group Stage',1351.30,757.14,1632.21,416.28],
+['USA v TBD','Santa Clara','1 Jul 2026','Round of 32',1266.94,610.53,907.41,368.01],
+['USA v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,469.92],
+['USA v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['USA v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['USA v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Washington D.C.','','20 Jul 2026','Return',0,0,0,797.05],
+]},
+'Paraguay':{group:'D',total:46984.92,flights:8038.65,food:4651.56,acc:10791.19,tickets:23503.51,
+matches:[
+['Paraguay v United States','Los Angeles','12 Jun 2026','Group Stage',1898.93,883.34,2485.86,2371.64],
+['Paraguay v Turkey','Santa Clara','19 Jun 2026','Group Stage',697.11,732.63,1256.72,377.81],
+['Paraguay v Australia','Los Angeles','25 Jun 2026','Group Stage',506.18,757.14,1632.21,379.86],
+['Paraguay v TBD','Santa Clara','1 Jul 2026','Round of 32',1266.94,610.53,907.41,368.01],
+['Paraguay v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,469.92],
+['Paraguay v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['Paraguay v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['Paraguay v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Luque','','20 Jul 2026','Return',0,0,0,2420.38],
+]},
+'Australia':{group:'D',total:47674.16,flights:8346.65,food:4335.42,acc:11720.95,tickets:23271.14,
+matches:[
+['Australia v Turkey','Vancouver','13 Jun 2026','Group Stage',537.27,632.20,2560.46,2912.04],
+['Australia v United States','Seattle','19 Jun 2026','Group Stage',1826.41,692.14,2509.98,503.03],
+['Australia v Paraguay','Santa Clara','25 Jun 2026','Group Stage',506.18,732.63,1234.11,368.33],
+['Australia v TBD','Santa Clara','1 Jul 2026','Round of 32',1266.94,610.53,907.41,0],
+['Australia v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,469.92],
+['Australia v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['Australia v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['Australia v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Canberra','','20 Jul 2026','Return',0,0,0,2442.29],
+]},
+'Turkey':{group:'D',total:47022.41,flights:8769.22,food:4400.43,acc:10865.80,tickets:22986.97,
+matches:[
+['Turkey v Australia','Vancouver','13 Jun 2026','Group Stage',537.27,632.20,2560.46,2117.23],
+['Turkey v Paraguay','Santa Clara','19 Jun 2026','Group Stage',697.11,732.63,1256.72,517.99],
+['Turkey v United States','Los Angeles','25 Jun 2026','Group Stage',1351.30,757.14,1632.21,379.86],
+['Turkey v TBD','Santa Clara','1 Jul 2026','Round of 32',1266.94,610.53,907.41,368.01],
+['Turkey v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,469.92],
+['Turkey v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['Turkey v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['Turkey v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Ankara','','20 Jul 2026','Return',0,0,0,3265.20],
+]},
+'Germany':{group:'E',total:46708.38,flights:7749.13,food:3918.13,acc:11490.24,tickets:23550.87,
+matches:[
+['Germany v Curaçao','Houston','14 Jun 2026','Group Stage',745.96,607.95,1640.33,2685.10],
+['Germany v Ivory Coast','Toronto','20 Jun 2026','Group Stage',1308.38,444.91,1565.85,651.45],
+['Germany v Ecuador','East Rutherford','25 Jun 2026','Group Stage',1428.27,393.76,815.51,474.84],
+['Germany v TBD','Foxborough','29 Jun 2026','Round of 32',1266.94,618.74,1778.87,667.79],
+['Germany v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,461.31],
+['Germany v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,742.49,2092.05,431.42],
+['Germany v TBD','Arlington','15 Jul 2026','Semi-final',3535.89,403.88,1179.50,416.31],
+['Germany v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Berlin','','20 Jul 2026','Return',0,0,0,1397.96],
+]},
+'Curaçao':{group:'E',total:45668.68,flights:6493.00,food:4109.15,acc:13154.09,tickets:21912.44,
+matches:[
+['Curaçao v Germany','Houston','14 Jun 2026','Group Stage',745.96,607.95,1640.33,1212.13],
+['Curaçao v Ecuador','Kansas City','20 Jun 2026','Group Stage',623.11,622.07,2302.66,720.08],
+['Curaçao v Ivory Coast','Philadelphia','25 Jun 2026','Group Stage',475.10,407.61,1742.55,612.61],
+['Curaçao v TBD','Foxborough','29 Jun 2026','Round of 32',1266.94,618.74,1778.87,652.32],
+['Curaçao v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,461.31],
+['Curaçao v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,742.49,2092.05,431.42],
+['Curaçao v TBD','Arlington','15 Jul 2026','Semi-final',3535.89,403.88,1179.50,416.31],
+['Curaçao v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Willemstad','','20 Jul 2026','Return',0,0,0,1423.87],
+]},
+'Ivory Coast':{group:'E',total:51479.20,flights:11410.76,food:3935.45,acc:13236.31,tickets:22896.68,
+matches:[
+['Ivory Coast v Ecuador','Philadelphia','14 Jun 2026','Group Stage',1044.93,611.42,2459.35,3975.07],
+['Ivory Coast v Germany','Toronto','20 Jun 2026','Group Stage',1308.38,444.91,1565.85,649.57],
+['Ivory Coast v Curaçao','Philadelphia','25 Jun 2026','Group Stage',475.10,407.61,1742.55,612.61],
+['Ivory Coast v TBD','Foxborough','29 Jun 2026','Round of 32',1266.94,618.74,1778.87,652.32],
+['Ivory Coast v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,461.31],
+['Ivory Coast v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,742.49,2092.05,431.42],
+['Ivory Coast v TBD','Arlington','15 Jul 2026','Semi-final',3535.89,403.88,1179.50,416.31],
+['Ivory Coast v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Abidjan','','20 Jul 2026','Return',0,0,0,3649.19],
+]},
+'Ecuador':{group:'E',total:47362.49,flights:7053.08,food:4098.76,acc:13046.08,tickets:23164.58,
+matches:[
+['Ecuador v Ivory Coast','Philadelphia','14 Jun 2026','Group Stage',1044.93,611.42,2459.35,1655.34],
+['Ecuador v Germany','Kansas City','20 Jun 2026','Group Stage',1428.27,622.07,2302.66,861.93],
+['Ecuador v Curaçao','East Rutherford','25 Jun 2026','Group Stage',623.11,393.76,815.51,531.39],
+['Ecuador v TBD','Foxborough','29 Jun 2026','Round of 32',1266.94,618.74,1778.87,667.79],
+['Ecuador v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,461.31],
+['Ecuador v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,742.49,2092.05,431.42],
+['Ecuador v TBD','Arlington','15 Jul 2026','Semi-final',3535.89,403.88,1179.50,416.31],
+['Ecuador v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Tababela','','20 Jul 2026','Return',0,0,0,1464.63],
+]},
+'Netherlands':{group:'F',total:46529.94,flights:8804.06,food:3692.75,acc:11595.28,tickets:22437.86,
+matches:[
+['Netherlands v Japan','Arlington','14 Jun 2026','Group Stage',1070.09,605.82,1987.08,2312.33],
+['Netherlands v Sweden','Houston','20 Jun 2026','Group Stage',928.00,506.63,1356.60,625.40],
+['Netherlands v Tunisia','Kansas City','25 Jun 2026','Group Stage',590.55,497.66,1943.90,665.29],
+['Netherlands v TBD','Monterrey','29 Jun 2026','Round of 32',1158.89,255.53,911.78,1281.58],
+['Netherlands v TBD','Houston','4 Jul 2026','Round of 16',1435.67,506.63,1691.94,758.07],
+['Netherlands v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,400.27],
+['Netherlands v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['Netherlands v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Amsterdam','','20 Jul 2026','Return',0,0,0,1465.60],
+]},
+'Japan':{group:'F',total:49362.11,flights:12772.56,food:3441.65,acc:10900.96,tickets:22246.93,
+matches:[
+['Japan v Netherlands','Arlington','14 Jun 2026','Group Stage',1070.09,605.82,1987.08,4009.18],
+['Japan v Tunisia','Monterrey','20 Jun 2026','Group Stage',556.51,255.53,1337.89,1233.55],
+['Japan v Sweden','Kansas City','25 Jun 2026','Group Stage',771.12,497.66,1943.90,835.75],
+['Japan v TBD','Monterrey','29 Jun 2026','Round of 32',1158.89,255.53,911.78,1281.58],
+['Japan v TBD','Houston','4 Jul 2026','Round of 16',1435.67,506.63,1016.33,1021.96],
+['Japan v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,352.81],
+['Japan v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['Japan v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Tokyo','','20 Jul 2026','Return',0,0,0,2742.21],
+]},
+'Sweden':{group:'F',total:47510.66,flights:10527.64,food:3755.49,acc:11119.73,tickets:22107.81,
+matches:[
+['Sweden v Tunisia','Monterrey','14 Jun 2026','Group Stage',559.47,357.75,1621.99,3491.17],
+['Sweden v Netherlands','Houston','20 Jun 2026','Group Stage',928.00,709.28,1844.99,667.51],
+['Sweden v Japan','Arlington','25 Jun 2026','Group Stage',771.12,605.82,2020.66,618.67],
+['Sweden v TBD','Monterrey','29 Jun 2026','Round of 32',1158.89,255.53,911.78,1418.95],
+['Sweden v TBD','Houston','4 Jul 2026','Round of 16',1435.67,506.63,1016.33,1021.96],
+['Sweden v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,352.81],
+['Sweden v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['Sweden v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Stockholm','','20 Jul 2026','Return',0,0,0,1661.04],
+]},
+'Tunisia':{group:'F',total:44241.39,flights:9571.40,food:3142.47,acc:9971.78,tickets:21555.74,
+matches:[
+['Tunisia v Netherlands','Monterrey','14 Jun 2026','Group Stage',590.55,306.64,1057.90,1754.92],
+['Tunisia v Japan','Monterrey','20 Jun 2026','Group Stage',556.51,255.53,1337.89,0],
+['Tunisia v Sweden','Kansas City','25 Jun 2026','Group Stage',559.47,497.66,1943.90,835.75],
+['Tunisia v TBD','Monterrey','29 Jun 2026','Round of 32',1158.89,255.53,911.78,1281.58],
+['Tunisia v TBD','Houston','4 Jul 2026','Round of 16',1435.67,506.63,1016.33,1021.96],
+['Tunisia v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,352.81],
+['Tunisia v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['Tunisia v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Tunis','','20 Jul 2026','Return',0,0,0,3028.86],
+]},
+'Belgium':{group:'G',total:46462.79,flights:7701.70,food:4094.63,acc:12774.74,tickets:21891.72,
+matches:[
+['Belgium v Egypt','Seattle','15 Jun 2026','Group Stage',673.43,692.14,2736.92,2766.11],
+['Belgium v Iran','Los Angeles','21 Jun 2026','Group Stage',556.51,630.95,1375.03,662.41],
+['Belgium v New Zealand','Vancouver','26 Jun 2026','Group Stage',609.79,526.83,2130.52,532.39],
+['Belgium v TBD','Seattle','1 Jul 2026','Round of 32',917.64,576.78,2023.29,550.02],
+['Belgium v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,0],
+['Belgium v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['Belgium v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,684.03],
+['Belgium v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Brussels','','20 Jul 2026','Return',0,0,0,1487.95],
+]},
+'Egypt':{group:'G',total:46167.81,flights:7077.98,food:4040.46,acc:13314.54,tickets:21734.83,
+matches:[
+['Egypt v Belgium','Seattle','15 Jun 2026','Group Stage',673.43,692.14,2736.92,1878.48],
+['Egypt v New Zealand','Vancouver','21 Jun 2026','Group Stage',500.26,526.83,2161.52,629.25],
+['Egypt v Iran','Seattle','26 Jun 2026','Group Stage',509.14,576.78,1883.83,483.58],
+['Egypt v TBD','Seattle','1 Jul 2026','Round of 32',917.64,576.78,2023.29,0],
+['Egypt v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,0],
+['Egypt v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['Egypt v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,684.03],
+['Egypt v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Cairo','','20 Jul 2026','Return',0,0,0,2383.86],
+]},
+'Iran':{group:'G',total:49759.41,flights:12199.22,food:4209.59,acc:11738.63,tickets:21611.98,
+matches:[
+['Iran v New Zealand','Los Angeles','15 Jun 2026','Group Stage',494.34,757.14,1947.49,1617.72],
+['Iran v Belgium','Los Angeles','21 Jun 2026','Group Stage',556.51,630.95,1375.03,0],
+['Iran v Egypt','Seattle','26 Jun 2026','Group Stage',509.14,576.78,1883.83,458.14],
+['Iran v TBD','Seattle','1 Jul 2026','Round of 32',917.64,576.78,2023.29,0],
+['Iran v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,0],
+['Iran v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['Iran v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,684.03],
+['Iran v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Tehran','','20 Jul 2026','Return',0,0,0,8420.55],
+]},
+'New Zealand':{group:'G',total:46524.37,flights:8040.66,food:4055.51,acc:12771.81,tickets:21656.38,
+matches:[
+['New Zealand v Iran','Los Angeles','15 Jun 2026','Group Stage',494.34,757.14,1947.49,2220.94],
+['New Zealand v Egypt','Vancouver','21 Jun 2026','Group Stage',500.26,526.83,2161.52,674.88],
+['New Zealand v Belgium','Vancouver','26 Jun 2026','Group Stage',609.79,526.83,2130.52,0],
+['New Zealand v TBD','Seattle','1 Jul 2026','Round of 32',917.64,576.78,2023.29,550.02],
+['New Zealand v TBD','Seattle','6 Jul 2026','Round of 16',1509.67,461.43,1485.18,0],
+['New Zealand v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,356.23],
+['New Zealand v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,684.03],
+['New Zealand v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Wellington','','20 Jul 2026','Return',0,0,0,2892.01],
+]},
+'Spain':{group:'H',total:45915.55,flights:7964.20,food:3854.32,acc:10090.29,tickets:24006.74,
+matches:[
+['Spain v Cape Verde','Atlanta','15 Jun 2026','Group Stage',682.31,735.03,1852.03,2650.42],
+['Spain v Saudi Arabia','Atlanta','21 Jun 2026','Group Stage',1002.01,612.53,1572.31,0],
+['Spain v Uruguay','Guadalajara','26 Jun 2026','Group Stage',1679.88,391.63,932.48,1024.23],
+['Spain v TBD','Los Angeles','2 Jul 2026','Round of 32',1477.11,504.76,1379.35,818.78],
+['Spain v TBD','Arlington','6 Jul 2026','Round of 16',1540.75,403.88,1330.31,624.25],
+['Spain v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,441.82],
+['Spain v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['Spain v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Madrid','','20 Jul 2026','Return',0,0,0,1109.90],
+]},
+'Cape Verde':{group:'H',total:47583.38,flights:10849.57,food:4196.98,acc:10366.86,tickets:22169.97,
+matches:[
+['Cape Verde v Spain','Atlanta','15 Jun 2026','Group Stage',682.31,735.03,1852.03,2481.32],
+['Cape Verde v Uruguay','Miami','21 Jun 2026','Group Stage',464.74,738.85,1305.96,559.80],
+['Cape Verde v Saudi Arabia','Houston','26 Jun 2026','Group Stage',380.38,607.95,1475.40,763.10],
+['Cape Verde v TBD','Los Angeles','2 Jul 2026','Round of 32',1477.11,504.76,1379.35,521.16],
+['Cape Verde v TBD','Arlington','6 Jul 2026','Round of 16',1540.75,403.88,1330.31,624.25],
+['Cape Verde v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,441.82],
+['Cape Verde v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['Cape Verde v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Praia','','20 Jul 2026','Return',0,0,0,4163.33],
+]},
+'Saudi Arabia':{group:'H',total:48729.73,flights:11936.37,food:4222.24,acc:10088.86,tickets:22482.26,
+matches:[
+['Saudi Arabia v Uruguay','Miami','15 Jun 2026','Group Stage',457.34,886.62,1307.68,2409.52],
+['Saudi Arabia v Spain','Atlanta','21 Jun 2026','Group Stage',1002.01,612.53,1572.31,569.84],
+['Saudi Arabia v Cape Verde','Houston','26 Jun 2026','Group Stage',380.38,607.95,1475.40,575.30],
+['Saudi Arabia v TBD','Los Angeles','2 Jul 2026','Round of 32',1477.11,504.76,1379.35,521.16],
+['Saudi Arabia v TBD','Arlington','6 Jul 2026','Round of 16',1540.75,403.88,1330.31,624.25],
+['Saudi Arabia v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,441.82],
+['Saudi Arabia v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['Saudi Arabia v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Riyadh','','20 Jul 2026','Return',0,0,0,5499.67],
+]},
+'Uruguay':{group:'H',total:44793.43,flights:8137.10,food:4132.24,acc:9279.59,tickets:23244.50,
+matches:[
+['Uruguay v Saudi Arabia','Miami','15 Jun 2026','Group Stage',457.34,886.62,1307.68,1733.57],
+['Uruguay v Cape Verde','Miami','21 Jun 2026','Group Stage',464.74,738.85,1305.96,0],
+['Uruguay v Spain','Guadalajara','26 Jun 2026','Group Stage',1679.88,391.63,932.48,975.54],
+['Uruguay v TBD','Los Angeles','2 Jul 2026','Round of 32',1477.11,504.76,1379.35,818.78],
+['Uruguay v TBD','Arlington','6 Jul 2026','Round of 16',1540.75,403.88,1330.31,624.25],
+['Uruguay v TBD','Los Angeles','10 Jul 2026','Quarter-final',2480.60,504.76,1072.39,441.82],
+['Uruguay v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,731.83],
+['Uruguay v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Montevideo','','20 Jul 2026','Return',0,0,0,2248.34],
+]},
+'France':{group:'I',total:45739.30,flights:7881.57,food:3716.99,acc:10634.26,tickets:23506.47,
+matches:[
+['France v Senegal','East Rutherford','16 Jun 2026','Group Stage',1044.93,590.64,1163.35,2318.83],
+['France v Iraq','Philadelphia','22 Jun 2026','Group Stage',1012.37,407.61,1511.48,794.43],
+['France v Norway','Foxborough','26 Jun 2026','Group Stage',1255.10,494.99,1583.78,678.79],
+['France v TBD','East Rutherford','30 Jun 2026','Round of 32',1392.75,393.76,704.27,751.70],
+['France v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,557.93],
+['France v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,431.42],
+['France v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['France v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Paris','','20 Jul 2026','Return',0,0,0,1052.96],
+]},
+'Senegal':{group:'I',total:45144.09,flights:9359.35,food:3564.07,acc:9392.08,tickets:22828.60,
+matches:[
+['Senegal v France','East Rutherford','16 Jun 2026','Group Stage',1044.93,590.64,1163.35,2994.06],
+['Senegal v Norway','East Rutherford','22 Jun 2026','Group Stage',886.56,393.76,697.35,0],
+['Senegal v Iraq','Toronto','26 Jun 2026','Group Stage',703.03,355.93,1155.72,617.95],
+['Senegal v TBD','East Rutherford','30 Jun 2026','Round of 32',1392.75,393.76,704.27,495.59],
+['Senegal v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,557.93],
+['Senegal v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,431.42],
+['Senegal v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['Senegal v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Dakar','','20 Jul 2026','Return',0,0,0,2966.88],
+]},
+'Iraq':{group:'I',total:56160.20,flights:18165.66,food:3729.78,acc:11637.46,tickets:22627.31,
+matches:[
+['Iraq v Norway','Foxborough','16 Jun 2026','Group Stage',717.83,742.49,2594.60,5200.74],
+['Iraq v France','Philadelphia','22 Jun 2026','Group Stage',1012.37,407.61,1511.48,730.58],
+['Iraq v Senegal','Toronto','26 Jun 2026','Group Stage',703.03,355.93,1155.72,691.95],
+['Iraq v TBD','East Rutherford','30 Jun 2026','Round of 32',1392.75,393.76,704.27,495.59],
+['Iraq v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,557.93],
+['Iraq v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,431.42],
+['Iraq v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['Iraq v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Baghdad','','20 Jul 2026','Return',0,0,0,8761.94],
+]},
+'Norway':{group:'I',total:46712.94,flights:8552.99,food:3854.99,acc:11251.39,tickets:23053.57,
+matches:[
+['Norway v Iraq','Foxborough','16 Jun 2026','Group Stage',717.83,742.49,2594.60,2062.08],
+['Norway v Senegal','East Rutherford','22 Jun 2026','Group Stage',886.56,393.76,697.35,893.88],
+['Norway v France','Foxborough','26 Jun 2026','Group Stage',1255.10,494.99,1583.78,937.35],
+['Norway v TBD','East Rutherford','30 Jun 2026','Round of 32',1392.75,393.76,704.27,751.70],
+['Norway v TBD','Philadelphia','4 Jul 2026','Round of 16',1546.67,509.51,1967.41,557.93],
+['Norway v TBD','Foxborough','9 Jul 2026','Quarter-final',2110.58,618.74,1752.55,431.42],
+['Norway v TBD','Arlington','14 Jul 2026','Semi-final',3535.89,504.85,1500.69,732.56],
+['Norway v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,562.96],
+['Return: New Jersey → Oslo','','20 Jul 2026','Return',0,0,0,1623.12],
+]},
+'Argentina':{group:'J',total:51529.89,flights:8336.11,food:4122.82,acc:13086.85,tickets:25984.11,
+matches:[
+['Argentina v Algeria','Kansas City','16 Jun 2026','Group Stage',1253.62,746.49,3078.48,2252.92],
+['Argentina v Austria','Arlington','22 Jun 2026','Group Stage',1625.12,504.85,1651.17,1052.96],
+['Argentina v Jordan','Arlington','27 Jun 2026','Group Stage',1366.10,605.82,2037.67,0],
+['Argentina v TBD','Miami','3 Jul 2026','Round of 32',3165.87,591.08,955.61,666.31],
+['Argentina v TBD','Atlanta','7 Jul 2026','Round of 16',1530.39,490.02,1523.34,574.14],
+['Argentina v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,394.37],
+['Argentina v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['Argentina v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Buenos Aires','','20 Jul 2026','Return',0,0,0,2370.15],
+]},
+'Algeria':{group:'J',total:50532.66,flights:9217.21,food:4369.17,acc:13145.28,tickets:23801.01,
+matches:[
+['Algeria v Argentina','Kansas City','16 Jun 2026','Group Stage',1253.62,746.49,3078.48,2452.80],
+['Algeria v Jordan','Santa Clara','22 Jun 2026','Group Stage',386.30,610.53,1173.59,730.40],
+['Algeria v Austria','Kansas City','27 Jun 2026','Group Stage',421.82,746.49,2573.68,586.83],
+['Algeria v TBD','Miami','3 Jul 2026','Round of 32',3165.87,591.08,955.61,537.60],
+['Algeria v TBD','Atlanta','7 Jul 2026','Round of 16',1530.39,490.02,1523.34,574.14],
+['Algeria v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,394.37],
+['Algeria v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['Algeria v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Algiers','','20 Jul 2026','Return',0,0,0,2915.80],
+]},
+'Austria':{group:'J',total:48842.69,flights:8386.07,food:4249.64,acc:11998.96,tickets:24208.02,
+matches:[
+['Austria v Jordan','Santa Clara','16 Jun 2026','Group Stage',421.82,732.63,1454.58,2518.88],
+['Austria v Argentina','Arlington','22 Jun 2026','Group Stage',1625.12,504.85,1651.17,751.79],
+['Austria v Algeria','Kansas City','27 Jun 2026','Group Stage',421.82,746.49,2573.68,797.72],
+['Austria v TBD','Miami','3 Jul 2026','Round of 32',3165.87,591.08,955.61,537.60],
+['Austria v TBD','Atlanta','7 Jul 2026','Round of 16',1530.39,490.02,1523.34,574.14],
+['Austria v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,394.37],
+['Austria v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['Austria v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Vienna','','20 Jul 2026','Return',0,0,0,1786.31],
+]},
+'Jordan':{group:'J',total:53892.76,flights:14779.26,food:4214.65,acc:10985.37,tickets:23913.49,
+matches:[
+['Jordan v Austria','Santa Clara','16 Jun 2026','Group Stage',421.82,732.63,1454.58,4785.52],
+['Jordan v Algeria','Santa Clara','22 Jun 2026','Group Stage',386.30,610.53,1173.59,0],
+['Jordan v Argentina','Arlington','27 Jun 2026','Group Stage',1366.10,605.82,2037.67,689.30],
+['Jordan v TBD','Miami','3 Jul 2026','Round of 32',3165.87,591.08,955.61,666.31],
+['Jordan v TBD','Atlanta','7 Jul 2026','Round of 16',1530.39,490.02,1523.34,574.14],
+['Jordan v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,394.37],
+['Jordan v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['Jordan v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Amman','','20 Jul 2026','Return',0,0,0,6644.36],
+]},
+'Portugal':{group:'K',total:48240.85,flights:7383.03,food:4003.56,acc:11515.47,tickets:25338.80,
+matches:[
+['Portugal v DR Congo','Houston','17 Jun 2026','Group Stage',1053.81,607.95,1600.39,2120.63],
+['Portugal v Uzbekistan','Houston','23 Jun 2026','Group Stage',1332.06,405.30,1032.04,0],
+['Portugal v Colombia','Miami','27 Jun 2026','Group Stage',3145.15,886.62,1551.95,739.73],
+['Portugal v TBD','Kansas City','3 Jul 2026','Round of 32',1118.93,497.66,1870.17,489.57],
+['Portugal v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,654.18],
+['Portugal v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,815.59],
+['Portugal v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['Portugal v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Lisbon','','20 Jul 2026','Return',0,0,0,1538.05],
+]},
+'DR Congo':{group:'K',total:49719.62,flights:11803.23,food:3707.75,acc:11679.01,tickets:22529.63,
+matches:[
+['DR Congo v Portugal','Houston','17 Jun 2026','Group Stage',1053.81,607.95,1600.39,3204.63],
+['DR Congo v Colombia','Guadalajara','23 Jun 2026','Group Stage',1182.58,261.08,729.97,871.68],
+['DR Congo v Uzbekistan','Atlanta','27 Jun 2026','Group Stage',485.46,735.03,2017.57,1066.29],
+['DR Congo v TBD','Kansas City','3 Jul 2026','Round of 32',1118.93,497.66,1870.17,450.12],
+['DR Congo v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,654.18],
+['DR Congo v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,815.59],
+['DR Congo v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['DR Congo v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Kinshasa','','20 Jul 2026','Return',0,0,0,3715.47],
+]},
+'Uzbekistan':{group:'K',total:51511.51,flights:14076.55,food:3584.49,acc:11106.23,tickets:22744.24,
+matches:[
+['Uzbekistan v Colombia','Mexico City','17 Jun 2026','Group Stage',1118.93,340.48,725.53,2416.40],
+['Uzbekistan v Portugal','Houston','23 Jun 2026','Group Stage',1332.06,405.30,1032.04,1003.65],
+['Uzbekistan v DR Congo','Atlanta','27 Jun 2026','Group Stage',485.46,735.03,2017.57,557.17],
+['Uzbekistan v TBD','Kansas City','3 Jul 2026','Round of 32',1118.93,497.66,1870.17,450.12],
+['Uzbekistan v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,654.18],
+['Uzbekistan v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,815.59],
+['Uzbekistan v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['Uzbekistan v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Tashkent','','20 Jul 2026','Return',0,0,0,7154.16],
+]},
+'Colombia':{group:'K',total:47793.95,flights:8609.11,food:3591.86,acc:10338.54,tickets:25254.43,
+matches:[
+['Colombia v Uzbekistan','Mexico City','17 Jun 2026','Group Stage',1118.93,340.48,725.53,1592.48],
+['Colombia v DR Congo','Guadalajara','23 Jun 2026','Group Stage',1182.58,261.08,729.97,1685.00],
+['Colombia v Portugal','Miami','27 Jun 2026','Group Stage',3145.15,886.62,1551.95,1052.25],
+['Colombia v TBD','Kansas City','3 Jul 2026','Round of 32',1118.93,497.66,1870.17,489.57],
+['Colombia v TBD','Vancouver','7 Jul 2026','Round of 16',1645.84,421.46,1620.34,654.18],
+['Colombia v TBD','Kansas City','11 Jul 2026','Quarter-final',2374.03,497.66,1891.99,815.59],
+['Colombia v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,362.73],
+['Colombia v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Bogotá','','20 Jul 2026','Return',0,0,0,1294.76],
+]},
+'England':{group:'L',total:44764.09,flights:7535.44,food:3603.05,acc:9352.45,tickets:24273.15,
+matches:[
+['England v Croatia','Arlington','17 Jun 2026','Group Stage',1688.76,605.82,2021.40,1971.44],
+['England v Ghana','Foxborough','23 Jun 2026','Group Stage',1213.66,494.99,1691.88,552.46],
+['England v Panama','East Rutherford','27 Jun 2026','Group Stage',1160.37,393.76,614.54,671.65],
+['England v TBD','Atlanta','1 Jul 2026','Round of 32',950.20,490.02,1447.64,639.14],
+['England v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,659.71],
+['England v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['England v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['England v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → London','','20 Jul 2026','Return',0,0,0,896.03],
+]},
+'Croatia':{group:'L',total:45721.13,flights:8375.57,food:3477.84,acc:9974.95,tickets:23892.77,
+matches:[
+['Croatia v England','Arlington','17 Jun 2026','Group Stage',1688.76,605.82,2021.40,2586.06],
+['Croatia v Panama','Toronto','23 Jun 2026','Group Stage',1086.37,355.93,1209.94,539.31],
+['Croatia v Ghana','Philadelphia','27 Jun 2026','Group Stage',907.28,407.61,1718.98,744.15],
+['Croatia v TBD','Atlanta','1 Jul 2026','Round of 32',950.20,490.02,1447.64,434.36],
+['Croatia v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,659.71],
+['Croatia v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['Croatia v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Croatia v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Zagreb','','20 Jul 2026','Return',0,0,0,1266.98],
+]},
+'Ghana':{group:'L',total:45667.65,flights:8868.55,food:3544.97,acc:10283.44,tickets:22970.69,
+matches:[
+['Ghana v Panama','Toronto','17 Jun 2026','Group Stage',639.39,533.89,1847.95,1731.04],
+['Ghana v England','Foxborough','23 Jun 2026','Group Stage',1213.66,494.99,1691.88,499.08],
+['Ghana v Croatia','Philadelphia','27 Jun 2026','Group Stage',907.28,407.61,1718.98,581.81],
+['Ghana v TBD','Atlanta','1 Jul 2026','Round of 32',950.20,490.02,1447.64,434.36],
+['Ghana v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,659.71],
+['Ghana v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['Ghana v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Ghana v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Accra','','20 Jul 2026','Return',0,0,0,2817.54],
+]},
+'Panama':{group:'L',total:42312.18,flights:7126.57,food:3392.05,acc:8697.06,tickets:23096.49,
+matches:[
+['Panama v Ghana','Toronto','17 Jun 2026','Group Stage',639.39,533.89,1847.95,1601.10],
+['Panama v Croatia','Toronto','23 Jun 2026','Group Stage',1086.37,355.93,1209.94,0],
+['Panama v England','East Rutherford','27 Jun 2026','Group Stage',1160.37,393.76,614.54,485.35],
+['Panama v TBD','Atlanta','1 Jul 2026','Round of 32',950.20,490.02,1447.64,639.14],
+['Panama v TBD','Mexico City','5 Jul 2026','Round of 16',1952.21,340.48,629.54,659.71],
+['Panama v TBD','Miami','11 Jul 2026','Quarter-final',2638.96,591.08,998.85,1073.73],
+['Panama v TBD','Atlanta','15 Jul 2026','Semi-final',3060.78,490.02,1497.86,408.74],
+['Panama v TBD','East Rutherford','19 Jul 2026','Final',11608.19,196.88,450.73,662.55],
+['Return: New Jersey → Panama City','','20 Jul 2026','Return',0,0,0,1596.26],
+]},
+};
+
+// ── BUILD NATION SELECT ───────────────────────────────────────────────────────
+function buildNationSelect(){
+  const sel=document.getElementById('nationSelect');
+  Object.keys(nations).sort().forEach(n=>{
+    const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);
+  });
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────────────────────
+function renderOverview(){
+  const entries=Object.entries(nations);
+  const sorted=[...entries].sort((a,b)=>b[1].total-a[1].total);
+  const maxT=sorted[0][1].total;
+  const totals=entries.map(([,d])=>d.total);
+  const avg=totals.reduce((a,b)=>a+b,0)/totals.length;
+  const min=Math.min(...totals),max=Math.max(...totals);
+  const minN=entries.find(([,d])=>d.total===min),maxN=entries.find(([,d])=>d.total===max);
+
+  document.getElementById('summaryCards').innerHTML=`
+    <div class="summary-card"><div class="label">Most Expensive</div><div class="value">${fmt(max)}</div><div class="sub">${maxN[0]}</div></div>
+    <div class="summary-card"><div class="label">Least Expensive</div><div class="value">${fmt(min)}</div><div class="sub">${minN[0]}</div></div>
+    <div class="summary-card"><div class="label">Average Cost</div><div class="value">${fmt(avg)}</div><div class="sub">Across all 48 nations</div></div>
+    <div class="summary-card"><div class="label">Nations Tracked</div><div class="value">48</div><div class="sub">All 2026 World Cup nations</div></div>`;
+
+  document.getElementById('barChart').innerHTML=sorted.map(([name,d])=>{
+    const tw=(d.tickets/maxT*100),fw=(d.flights/maxT*100),aw=(d.acc/maxT*100),fdw=(d.food/maxT*100);
+    const safeN=name.replace(/'/g,"\\'");
+    return `<div class="bar-row" onclick="goToDetail('${safeN}')">
+      <div class="bar-nation">${name}</div>
+      <div class="bar-track">
+        <div class="bar-seg tickets" style="width:0%" data-w="${tw.toFixed(2)}"></div>
+        <div class="bar-seg flights" style="width:0%" data-w="${fw.toFixed(2)}"></div>
+        <div class="bar-seg acc" style="width:0%" data-w="${aw.toFixed(2)}"></div>
+        <div class="bar-seg food" style="width:0%" data-w="${fdw.toFixed(2)}"></div>
+      </div>
+      <div class="bar-value">${fmt(d.total)}</div>
+    </div>`;
+  }).join('');
+
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.bar-seg').forEach(s=>{s.style.width=s.dataset.w+'%';});
+  });
+}
+
+function goToDetail(name){document.getElementById('nationSelect').value=name;switchTab('detail');}
+
+// ── DETAIL ────────────────────────────────────────────────────────────────────
+function renderDetail(){
+  const name=document.getElementById('nationSelect').value;
+  const d=nations[name];if(!d)return;
+  const p={t:(d.tickets/d.total*100).toFixed(0),f:(d.flights/d.total*100).toFixed(0),a:(d.acc/d.total*100).toFixed(0),fd:(d.food/d.total*100).toFixed(0)};
+
+  const rows=d.matches.map(([match,loc,date,stage,tix,food,acc,flt])=>{
+    const isReturn=stage==='Return';
+    const legTotal=tix+food+acc+flt;
+    return `<tr>
+      <td class="dim" style="white-space:nowrap">${date}</td>
+      <td style="font-weight:500">${isReturn?`<span class="ret">${match}</span>`:match}</td>
+      <td class="dim">${loc}</td>
+      <td>${stageBadge(stage)}</td>
+      <td class="mono tickets-col">${fmtZ(tix)}</td>
+      <td class="mono flights-col">${fmtZ(flt)}</td>
+      <td class="mono acc-col">${fmtZ(acc)}</td>
+      <td class="mono food-col">${fmtZ(food)}</td>
+      <td class="mono total-col">${legTotal>0?fmt(legTotal):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('detailContent').innerHTML=`
+    <div class="detail-header">
+      <div>
+        <div class="detail-nation">${name}</div>
+        <div class="detail-total-label">Total cost · 2 people · Group Stage → Final · Group ${d.group}</div>
+        <div class="detail-total-value">${fmt(d.total)}</div>
+      </div>
+    </div>
+    <div class="breakdown-grid">
+      <div class="breakdown-card tickets"><div class="cat">Match Tickets</div><div class="amt">${fmt(d.tickets)}</div><div class="pct">${p.t}% of total · avg price × 2 people</div></div>
+      <div class="breakdown-card flights"><div class="cat">Flights</div><div class="amt">${fmt(d.flights)}</div><div class="pct">${p.f}% of total · all legs inc. return</div></div>
+      <div class="breakdown-card acc"><div class="cat">Accommodation</div><div class="amt">${fmt(d.acc)}</div><div class="pct">${p.a}% of total · Airbnb & Booking avg</div></div>
+      <div class="breakdown-card food"><div class="cat">Food & Drinks</div><div class="amt">${fmt(d.food)}</div><div class="pct">${p.fd}% of total · 2 people per leg</div></div>
+    </div>
+    <div class="section-title">Match by Match Breakdown</div>
+    <div class="legend" style="margin-bottom:14px;">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-tickets)"></div>Tickets</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-flights)"></div>Flights</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-acc)"></div>Accommodation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-food)"></div>Food & Drinks</div>
+    </div>
+    <div class="match-table-wrap">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Match</th><th>Location</th><th>Stage</th>
+          <th style="color:var(--c-tickets)">Tickets</th>
+          <th style="color:var(--c-flights)">Flights</th>
+          <th style="color:var(--c-acc)">Accom.</th>
+          <th style="color:var(--c-food)">Food</th>
+          <th style="color:var(--accent)">Leg Total</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr>
+          <td colspan="4" style="color:var(--muted);font-size:11px">TOTAL (2 people, group stage → final)</td>
+          <td class="mono tickets-col">${fmt(d.tickets)}</td>
+          <td class="mono flights-col">${fmt(d.flights)}</td>
+          <td class="mono acc-col">${fmt(d.acc)}</td>
+          <td class="mono food-col">${fmt(d.food)}</td>
+          <td class="mono total-col">${fmt(d.total)}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div class="note" style="margin-top:20px;">
+      <strong>Methodology:</strong> Costs assume 2 supporters following their nation through every round to the Final. Ticket prices are average resale/face values per person (×2). Flights cover each city-to-city leg (economy class), including the return home. Accommodation uses a combined Airbnb & Booking.com average across real listings. Food & drinks are estimated averages for 2 people per leg. All data collected at time of research.
+    </div>`;
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',(i===0&&tab==='overview')||(i===1&&tab==='detail'));});
+  document.getElementById('overviewPanel').classList.toggle('active',tab==='overview');
+  document.getElementById('detailPanel').classList.toggle('active',tab==='detail');
+  if(tab==='overview')renderOverview();
+  if(tab==='detail')renderDetail();
+}
+
+buildNationSelect();
+renderOverview();
+renderDetail();
+</script>
+</body>
+</html>
