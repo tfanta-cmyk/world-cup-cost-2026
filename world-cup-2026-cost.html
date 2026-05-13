@@ -191,7 +191,16 @@
 </div>
 
 <script>
-const rates={GBP:1,USD:1.27,EUR:1.18,MXN:21.5,BRL:6.45,ARS:1150,JPY:192,KRW:1720,AUD:1.96,CAD:1.73,ZAR:23.5,SAR:4.76,QAR:4.62,CHF:1.12,SEK:13.1,NOK:13.4,TRY:43.2,EGP:62.5,MAD:12.7,TND:3.9,DZD:170,UYU:50.8,PYG:9600,COP:5100,NZD:2.14,IQD:1660,JOD:0.90,UZS:16200,HRK:8.9,CZK:29.5,BAM:2.30,CVE:130,GHS:19.5,XOF:770,CDF:3560,NGN:1900,HTG:167,PAB:1.27,AWG:2.29,IRR:53000};
+let rates={GBP:1,USD:1.27,EUR:1.18,MXN:21.5,BRL:6.45,ARS:1150,JPY:192,KRW:1720,AUD:1.96,CAD:1.73,ZAR:23.5,SAR:4.76,QAR:4.62,CHF:1.12,SEK:13.1,NOK:13.4,TRY:43.2,EGP:62.5,MAD:12.7,TND:3.9,DZD:170,UYU:50.8,PYG:9600,COP:5100,NZD:2.14,IQD:1660,JOD:0.90,UZS:16200,HRK:8.9,CZK:29.5,BAM:2.30,CVE:130,GHS:19.5,XOF:770,CDF:3560,NGN:1900,HTG:167,PAB:1.27,AWG:2.29,IRR:53000};
+// Fetch live rates from GBP base — falls back to static rates above if API unavailable
+fetch('https://api.exchangerate-api.com/v4/latest/GBP')
+  .then(r=>r.json())
+  .then(data=>{
+    if(data&&data.rates){
+      Object.keys(rates).forEach(c=>{if(data.rates[c])rates[c]=data.rates[c];});
+      renderOverview();renderDetail();
+    }
+  }).catch(()=>{});
 const symbols={GBP:'£',USD:'$',EUR:'€',MXN:'MX$',BRL:'R$',ARS:'$',JPY:'¥',KRW:'₩',AUD:'A$',CAD:'C$',ZAR:'R',SAR:'﷼',QAR:'﷼',CHF:'Fr',SEK:'kr',NOK:'kr',TRY:'₺',EGP:'E£',MAD:'MAD ',TND:'DT ',DZD:'DA ',UYU:'$U',PYG:'₲',COP:'$',NZD:'NZ$',IQD:'IQD ',JOD:'JD ',UZS:'som ',HRK:'kn',CZK:'Kč',BAM:'KM',CVE:'$',GHS:'₵',XOF:'CFA ',CDF:'FC',NGN:'₦',HTG:'G',PAB:'B/.',AWG:'ƒ',IRR:'﷼'};
 let cur='GBP';
 const bigCur=['JPY','KRW','IQD','IRR','UZS','HTG','PYG','CDF','NGN','DZD','ARS','XOF'];
