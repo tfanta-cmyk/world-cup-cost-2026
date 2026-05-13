@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 World Cup – Fast Facts</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #1a1a26;
+    --border: #2a2a3f;
+    --accent: #f5c518;
+    --text: #f0f0f0;
+    --muted: #888;
+    --blue: #4f8ef7;
+    --purple: #a855f7;
+    --green: #2ecc71;
+    --red: #e8453c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .ticker-wrap {
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .ticker-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .ticker-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    border: 1px solid rgba(245,197,24,0.3);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .ticker-title {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .ticker-title span {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .fact-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 40px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+
+  .fact-card.fading { opacity: 0; }
+
+  .fact-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    transition: background 0.5s;
+  }
+
+  .fact-card.color-gold::before  { background: var(--accent); }
+  .fact-card.color-blue::before  { background: var(--blue); }
+  .fact-card.color-purple::before{ background: var(--purple); }
+  .fact-card.color-green::before { background: var(--green); }
+  .fact-card.color-red::before   { background: var(--red); }
+
+  .fact-card .bg-number {
+    position: absolute;
+    right: -10px;
+    bottom: -20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 160px;
+    line-height: 1;
+    opacity: 0.04;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .fact-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .fact-card.color-gold   .fact-category { color: var(--accent); }
+  .fact-card.color-blue   .fact-category { color: var(--blue); }
+  .fact-card.color-purple .fact-category { color: var(--purple); }
+  .fact-card.color-green  .fact-category { color: var(--green); }
+  .fact-card.color-red    .fact-category { color: var(--red); }
+
+  .fact-text {
+    font-size: clamp(17px, 2.8vw, 24px);
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .fact-text .highlight {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+  }
+
+  .fact-card.color-gold   .fact-text .highlight { color: var(--accent); }
+  .fact-card.color-blue   .fact-text .highlight { color: var(--blue); }
+  .fact-card.color-purple .fact-text .highlight { color: var(--purple); }
+  .fact-card.color-green  .fact-text .highlight { color: var(--green); }
+  .fact-card.color-red    .fact-text .highlight { color: var(--red); }
+
+  .fact-text .nation {
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .fact-sub {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    line-height: 1.5;
+  }
+
+  .ticker-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width linear;
+  }
+
+  .controls { display: flex; gap: 8px; align-items: center; }
+
+  .btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn:hover { border-color: var(--accent); }
+
+  .counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .fact-card { padding: 28px 24px; min-height: 200px; }
+    .fact-text { font-size: 17px; }
+    body { padding: 12px; align-items: flex-start; padding-top: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ticker-wrap">
+  <div class="ticker-header">
+    <div class="ticker-label">Fast Facts</div>
+    <div class="ticker-title">2026 World Cup — <span>The True Cost Of Following Your Team</span></div>
+  </div>
+
+  <div class="fact-card color-gold" id="factCard">
+    <div class="fact-category" id="factCategory"></div>
+    <div class="fact-text" id="factText"></div>
+    <div class="fact-sub" id="factSub"></div>
+    <div class="bg-number" id="bgNumber"></div>
+  </div>
+
+  <div class="ticker-footer">
+    <div class="btn" onclick="prevFact()">&#8592;</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="btn" onclick="togglePause()" id="pauseBtn">&#9646;&#9646;</div>
+    <div class="btn" onclick="nextFact()">&#8594;</div>
+    <div class="counter" id="counter">1 / 33</div>
+  </div>
+</div>
+
+<script>
+const fx = {
+  GBP:1,IQD:1660,PAB:1.27,CAD:1.73,MXN:21.5,TND:3.9,MAD:12.7,ARS:1150,
+  JOD:0.90,UZS:16200,IRR:53000,KRW:1720,CZK:29.5,ZAR:23.5,NOK:13.4,EUR:1.18,
+  BRL:6.45,QAR:4.62,SAR:4.76,AUD:1.96,TRY:43.2,COP:5100,UYU:50.8,XOF:770,
+  NGN:1900,CVE:130,HTG:167,GHS:19.5,CDF:3560,BAM:2.30,HRK:8.9,SEK:13.1,
+  NZD:2.14,EGP:62.5,AWG:2.29,DZD:170,JPY:192,PYG:9600
+};
+const sym = {
+  GBP:'£',IQD:'IQD ',PAB:'B/.',CAD:'C$',MXN:'MX$',TND:'DT ',MAD:'MAD ',
+  ARS:'$',JOD:'JD ',UZS:'som ',IRR:'﷼',KRW:'₩',CZK:'Kč',ZAR:'R',NOK:'kr',
+  EUR:'€',BRL:'R$',QAR:'﷼',SAR:'﷼',AUD:'A$',TRY:'₺',COP:'$',UYU:'$U',
+  XOF:'CFA ',NGN:'₦',CVE:'$',HTG:'G',GHS:'₵',CDF:'FC',BAM:'KM',HRK:'kn',
+  SEK:'kr',NZD:'NZ$',EGP:'E£',AWG:'ƒ',DZD:'DA ',JPY:'¥',PYG:'₲'
+};
+const bigCur=['IQD','IRR','UZS','HTG','PYG','CDF','NGN','DZD','ARS','XOF','JPY','KRW'];
+
+function fmtGBP(v){return '£'+v.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0});}
+function fmtLocal(gbp,cur){
+  const v=gbp*fx[cur],s=sym[cur];
+  return s+(bigCur.includes(cur)?Math.round(v).toLocaleString():v.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0}));
+}
+function both(gbp,cur){return `${fmtGBP(gbp)} <span style="color:var(--muted);font-size:0.75em">(${fmtLocal(gbp,cur)})</span>`;}
+function h(t){return `<span class="highlight">${t}</span>`;}
+function n(t){return `<span class="nation">${t}</span>`;}
+
+const facts = [
+  {
+    cat:'Overall Cost',color:'gold',bg:'£47K',
+    text:`If your nation went all the way to the 2026 World Cup Final, you'd be looking at an average of ${h('£47,354')} for 2 people — before a single beer is bought at the stadium.`,
+    sub:'Based on flights, accommodation, tickets & food across all 48 nations'
+  },
+  {
+    cat:'Most Expensive Nation',color:'red',bg:'£56K',
+    text:`${n('Iraq')} fans would face the most expensive journey of any nation — a staggering ${h(both(56160,'IQD'))} for 2 people if they were to follow their team all the way to the Final.`,
+    sub:'Driven primarily by long-haul flight costs from Baghdad to the USA and back'
+  },
+  {
+    cat:'Least Expensive Nation',color:'green',bg:'£42K',
+    text:`${n('Panama')} supporters would have the most affordable trip at ${h(both(42312,'PAB'))} for 2 people — nearly £14,000 less than Iraq fans would pay for the same journey.`,
+    sub:'Short regional flights and lower accommodation costs keep Panama\'s total down'
+  },
+  {
+    cat:'The Gap',color:'red',bg:'£13K',
+    text:`There would be a ${h('£13,848')} difference between the most and least expensive nations to follow. That gap is almost entirely explained by the cost of getting there and back.`,
+    sub:'Iraq (£56,160) vs Panama (£42,312) — same tournament, very different bills'
+  },
+  {
+    cat:'Tickets',color:'gold',bg:'49%',
+    text:`On average, ${h('49.5%')} of the total estimated trip cost would go on match tickets alone — meaning for most fans, getting into the games would cost more than flights and accommodation combined.`,
+    sub:'Average ticket spend across all 48 nations: £23,362 for 2 people'
+  },
+  {
+    cat:'Tickets — Mexico',color:'gold',bg:'64%',
+    text:`${n('Mexico')} fans would have it toughest on tickets — ${h('64.4%')} of their entire estimated trip cost would go on match tickets, the highest share of any nation at ${h(both(28054,'MXN'))}.`,
+    sub:'Mexico play all three group games in host cities, keeping flights low but ticket costs very high'
+  },
+  {
+    cat:'Tickets — Tunisia',color:'gold',bg:'£21K',
+    text:`${n('Tunisia')} supporters would pay the least in total ticket costs at ${h(both(21555,'TND'))} for 2 people — but even that would still make up ${h('48.7%')} of their estimated total trip.`,
+    sub:'Across all 48 nations, tickets would never drop below 40% of the total estimated cost'
+  },
+  {
+    cat:'The Final Ticket',color:'red',bg:'£11K',
+    text:`The Final alone would cost ${h('£11,608')} in tickets for 2 people — that single match would account for ${h('24.5%')} of the average nation\'s entire estimated trip budget.`,
+    sub:'The Final ticket would cost more than all three group stage matches combined for most nations'
+  },
+  {
+    cat:'The Final Ticket',color:'red',bg:'27%',
+    text:`For ${n('Panama')} fans, the Final ticket alone would represent ${h('27.4%')} of their entire estimated tournament budget. One game. Over a quarter of the total spend.`,
+    sub:'East Rutherford, New Jersey — 19 July 2026'
+  },
+  {
+    cat:'Flights — Iraq',color:'blue',bg:'32%',
+    text:`${n('Iraq')} fans would spend ${h(both(18165,'IQD'))} on flights alone — ${h('32.3%')} of their estimated total cost. No other nation would pay more to get around the tournament.`,
+    sub:'Long-haul routes from Baghdad to the US and back would make Iraq the most flight-heavy trip'
+  },
+  {
+    cat:'Flights — Canada',color:'blue',bg:'7%',
+    text:`${n('Canada')} fans would pay just ${h(both(3239,'CAD'))} in flights — only ${h('7.2%')} of their estimated total. As co-hosts, Canada would play most of their games right on their doorstep.`,
+    sub:'Canada\'s group stage games are all in Toronto and Vancouver — no intercontinental flights needed'
+  },
+  {
+    cat:'The Flights Gap',color:'blue',bg:'£14K',
+    text:`The estimated flight cost difference between ${n('Iraq')} and ${n('Canada')} would be ${h('£14,926')} — more than some nations\' entire total trip budget. Geography is everything.`,
+    sub:'The single biggest driver of cost inequality across the 48 nations'
+  },
+  {
+    cat:'Flights — Jordan',color:'blue',bg:'27%',
+    text:`${n('Jordan')} fans would spend ${h(both(14779,'JOD'))} on flights — ${h('27.4%')} of their estimated total, the second highest flight bill of all 48 nations.`,
+    sub:'The return flight alone from New Jersey to Amman would cost £6,644 for 2 people'
+  },
+  {
+    cat:'Flights — Uzbekistan',color:'blue',bg:'27%',
+    text:`${n('Uzbekistan')} supporters would face the third highest flight bill of any nation at ${h(both(14076,'UZS'))}, with a return from New Jersey to Tashkent estimated at ${h('£7,154')}.`,
+    sub:'Central Asian fans would face some of the most punishing long-haul costs of the tournament'
+  },
+  {
+    cat:'Flights — Iran',color:'blue',bg:'£8K',
+    text:`The return flight home from New Jersey to Tehran would cost ${n('Iran')} fans an estimated ${h(both(8420,'IRR'))} alone — the second most expensive single return leg of any nation.`,
+    sub:'Only Iraq fans would face a higher return cost, at an estimated £8,761 from New Jersey to Baghdad'
+  },
+  {
+    cat:'Average Flights',color:'blue',bg:'18%',
+    text:`Across all 48 nations, flights would represent an average of ${h('18.6%')} of the total estimated trip cost — or ${h('£8,896')} per nation for 2 people, including all legs and the return home.`,
+    sub:'This figure rises sharply for nations from Asia, the Middle East and Oceania'
+  },
+  {
+    cat:'Accommodation — Canada',color:'purple',bg:'31%',
+    text:`${n('Canada')} fans would pay the most in accommodation at an estimated ${h(both(14262,'CAD'))} — ${h('31.6%')} of their total, the highest accommodation share of any nation.`,
+    sub:'Vancouver is one of the most expensive cities in North America for short-term rentals'
+  },
+  {
+    cat:'Accommodation — Mexico',color:'purple',bg:'£7K',
+    text:`${n('Mexico')} fans would benefit from the cheapest accommodation of all 48 nations at an estimated ${h(both(7087,'MXN'))} — less than half what Canadian fans would pay throughout the tournament.`,
+    sub:'Playing most games in Mexico City would keep accommodation costs consistently low'
+  },
+  {
+    cat:'Accommodation Average',color:'purple',bg:'23%',
+    text:`Accommodation would make up an average of ${h('23.5%')} of the estimated total trip cost — or ${h('£11,147')} for 2 people across the full tournament journey.`,
+    sub:'Based on a combined average of Airbnb and Booking.com listings at each destination'
+  },
+  {
+    cat:'Food & Drinks — Morocco',color:'green',bg:'£4.6K',
+    text:`${n('Morocco')} fans would spend the most on food and drinks of any nation — an estimated ${h(both(4644,'MAD'))} for 2 people across the tournament.`,
+    sub:'Morocco\'s route would take them through some of the pricier US cities for eating out'
+  },
+  {
+    cat:'Food & Drinks — Mexico',color:'green',bg:'£3K',
+    text:`${n('Mexico')} supporters would enjoy the lowest estimated food bill at ${h(both(3031,'MXN'))} for 2 people — reflecting the significantly lower cost of eating and drinking in Mexican host cities.`,
+    sub:'Mexico City, Guadalajara and Monterrey are considerably cheaper than their US equivalents'
+  },
+  {
+    cat:'Food & Drinks Average',color:'green',bg:'8%',
+    text:`Food and drinks would make up just ${h('8.3%')} of the average estimated total trip cost — or ${h('£3,948')} for 2 people. The smallest of the four cost categories across all nations.`,
+    sub:'Despite being the smallest share, food costs still vary by over £1,600 between the cheapest and most expensive nations'
+  },
+  {
+    cat:'Nations Over £50,000',color:'red',bg:'7',
+    text:`${h('7 out of 48 nations')} would face an estimated total trip cost exceeding ${h('£50,000')} for 2 people. All seven are from outside the Americas, with long-haul flights being the key factor.`,
+    sub:'Iraq, Jordan, Argentina, Ivory Coast, Algeria, Uzbekistan, Qatar'
+  },
+  {
+    cat:'Nations Under £45,000',color:'green',bg:'8',
+    text:`Only ${h('8 nations')} would manage to keep their estimated total below ${h('£45,000')}. Six of them are from the Americas or would benefit from a host nation advantage.`,
+    sub:'Panama, Czech Republic, Mexico, Haiti, England, South Korea, Tunisia, Uruguay'
+  },
+  {
+    cat:'England',color:'gold',bg:'£44K',
+    text:`${n('England')} fans would spend an estimated ${h('£44,764')} for 2 people — one of the more affordable European trips, partly thanks to a relatively short return flight estimated at just ${h('£896')}.`,
+    sub:'England\'s return from New Jersey to London would be among the cheapest of any European nation'
+  },
+  {
+    cat:'Argentina',color:'gold',bg:'£51K',
+    text:`As reigning World Champions, ${n('Argentina')} fans would face an estimated ${h(both(51529,'ARS'))} bill for 2 people — with tickets making up ${h('50.4%')} of that total at an estimated £25,984.`,
+    sub:'Argentina\'s group games in Kansas City and Dallas would require extensive internal US travel'
+  },
+  {
+    cat:'South Korea vs Czech Republic',color:'gold',bg:'£1K',
+    text:`${n('South Korea')} and ${n('Czech Republic')} would have almost identical estimated total costs — ${h('£43,887')} vs ${h('£42,860')} — despite flying from opposite ends of the world.`,
+    sub:'South Korea\'s higher flights would be offset by cheaper accommodation along their route'
+  },
+  {
+    cat:'Scotland',color:'gold',bg:'£49K',
+    text:`${n('Scotland')} fans would face the most expensive estimated trip of any UK nation at ${h('£49,335')} — around ${h('£4,571 more')} than England fans, largely due to pricier transatlantic flights from Edinburgh.`,
+    sub:'Scotland would open against Haiti in Foxborough — their first World Cup since 1998'
+  },
+  {
+    cat:'Host Nations Advantage',color:'green',bg:'£4K',
+    text:`${n('USA')}, ${n('Canada')} and ${n('Mexico')} would all benefit massively as co-hosts. Their average estimated flight spend of ${h('£4,554')} would be ${h('nearly half')} the overall average of ${h('£8,896')}.`,
+    sub:'Co-hosting the tournament gives domestic fans an enormous financial advantage over travelling nations'
+  },
+  {
+    cat:'Qatar — The Comeback',color:'blue',bg:'£50K',
+    text:`${n('Qatar')} hosted the 2022 World Cup — now they\'d be paying to follow their team as visitors. Their estimated total: ${h(both(50038,'QAR'))} for 2 people, with a ${h('£5,100')} return flight home.`,
+    sub:'From World Cup host to travelling fan — Qatar\'s journey from Doha to the USA would cost more than most'
+  },
+  {
+    cat:'Brazil',color:'gold',bg:'£49K',
+    text:`Five-time World Champions ${n('Brazil')} fans would spend an estimated ${h(both(49124,'BRL'))} for 2 people, with tickets making up ${h('52.9%')} of their total bill at an estimated £25,992.`,
+    sub:'Brazil\'s hypothetical route would cover New Jersey, Philadelphia, Miami, Houston and Atlanta'
+  },
+  {
+    cat:'The Full Journey',color:'gold',bg:'8',
+    text:`Every nation would need ${h('8 legs')} to get from their home city to the Final and back — 3 group games, Round of 32, Round of 16, Quarter-final, Semi-final, Final, and the flight home.`,
+    sub:'Across all 48 nations, that\'s 384 individual flights, hotel stays and match days to account for'
+  },
+  {
+    cat:'The Bottom Line',color:'gold',bg:'£47K',
+    text:`If your nation made it from the opening whistle all the way to the Final, you\'d be looking at an estimated ${h('£47,354')} for 2 people — wherever you\'d be flying from.`,
+    sub:'All estimates based on real flight searches, accommodation listings, ticket data and food costs collected at time of research'
+  },
+];
+
+let current=0,paused=false,timer=null;
+const DURATION=15000;
+
+const card=document.getElementById('factCard');
+const catEl=document.getElementById('factCategory');
+const textEl=document.getElementById('factText');
+const subEl=document.getElementById('factSub');
+const bgEl=document.getElementById('bgNumber');
+const fillEl=document.getElementById('progressFill');
+const counterEl=document.getElementById('counter');
+const pauseBtn=document.getElementById('pauseBtn');
+
+function showFact(idx,animate=true){
+  const f=facts[idx];
+  if(animate){
+    card.classList.add('fading');
+    setTimeout(()=>{applyFact(f,idx);card.classList.remove('fading');},400);
+  } else {
+    applyFact(f,idx);
+  }
+}
+
+function applyFact(f,idx){
+  card.className='fact-card color-'+f.color;
+  catEl.textContent=f.cat;
+  textEl.innerHTML=f.text;
+  subEl.textContent=f.sub||'';
+  bgEl.textContent=f.bg||'';
+  counterEl.textContent=(idx+1)+' / '+facts.length;
+}
+
+function startProgress(){
+  fillEl.style.transition='none';
+  fillEl.style.width='0%';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      fillEl.style.transition=`width ${DURATION}ms linear`;
+      fillEl.style.width='100%';
+    });
+  });
+}
+
+function nextFact(){
+  current=(current+1)%facts.length;
+  showFact(current);
+  if(!paused){clearTimeout(timer);startProgress();timer=setTimeout(nextFact,DURATION);}
+}
+
+function prevFact(){
+  current=(current-1+facts.length)%facts.length;
+  showFact(current);
+  if(!paused){clearTimeout(timer);startProgress();timer=setTimeout(nextFact,DURATION);}
+}
+
+function togglePause(){
+  paused=!paused;
+  pauseBtn.innerHTML=paused?'&#9654;':'&#9646;&#9646;';
+  if(paused){
+    clearTimeout(timer);
+    fillEl.style.transition='none';
+  } else {
+    startProgress();
+    timer=setTimeout(nextFact,DURATION);
+  }
+}
+
+showFact(0,false);
+startProgress();
+timer=setTimeout(nextFact,DURATION);
+</script>
+</body>
+</html>
